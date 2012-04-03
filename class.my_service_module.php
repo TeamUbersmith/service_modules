@@ -41,6 +41,9 @@ class my_service_module extends service_module
 	 * not exist when the service module is installed. 'type' can be 'text' or 'select'.
 	 * If using 'select', pass an 'options' key with an array of your values to be presented
 	 * in the select box. See below for a (commented out) example.
+	 * 
+	 * @return array
+	 * @author John Smith <jsmith@ubersmith.com>
 	 */
 	function get_metadata_config()
 	{
@@ -67,7 +70,7 @@ class my_service_module extends service_module
 	 * lower right hand corner of the service's page when viewed in the Client Manager.
 	 *
 	 * @return bool
-	 * @author Michael Styne
+	 * @author John Smith <jsmith@ubersmith.com>
 	 */
 	function summary()
 	{
@@ -160,8 +163,8 @@ class my_service_module extends service_module
 	/**
 	 * This function is called immediately before the related service is edited/updated.
 	 *
-	 * @return void
-	 * @author Michael Styne
+	 * @return bool
+	 * @author John Smith <jsmith@ubersmith.com>
 	 **/
 	function onafteredit()
 	{
