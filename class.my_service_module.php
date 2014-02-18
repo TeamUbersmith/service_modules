@@ -303,8 +303,8 @@ class my_service_module extends service_module
 	/**
 	 * This function is called immediately before the related service is created.
 	 *
-	 * @return void
-	 * @author Michael Styne
+	 * @return bool
+	 * @author John Smith <jsmith@ubersmith.com>
 	 **/
 	function onbeforecreate()
 	{
@@ -314,8 +314,8 @@ class my_service_module extends service_module
 	/**
 	 * This function is called immediately after the related service is created.
 	 *
-	 * @return void
-	 * @author Michael Styne
+	 * @return bool
+	 * @author John Smith <jsmith@ubersmith.com>
 	 **/
 	function onaftercreate()
 	{
