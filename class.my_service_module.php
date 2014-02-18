@@ -300,4 +300,26 @@ class my_service_module extends service_module
 		return true;
 	}
 
+	/**
+	 * This function is called immediately before the related service is created.
+	 *
+	 * @return void
+	 * @author Michael Styne
+	 **/
+	function onbeforecreate()
+	{
+		return true;
+	}
+	
+	/**
+	 * This function is called immediately after the related service is created.
+	 *
+	 * @return void
+	 * @author Michael Styne
+	 **/
+	function onaftercreate()
+	{
+		return true;
+	}
+
 }
