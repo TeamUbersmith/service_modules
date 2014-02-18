@@ -322,4 +322,16 @@ class my_service_module extends service_module
 		return true;
 	}
 
+	/**
+	 * This function is called immediately after an invoice is generated for the
+	 * related service.
+	 *
+	 * @return bool
+	 * @author John Smith <jsmith@ubersmith.com>
+	 **/
+	function onafterinvoice()
+	{
+		return true;
+	}
+
 }
