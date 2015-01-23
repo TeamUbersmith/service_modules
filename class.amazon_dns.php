@@ -57,7 +57,7 @@ class amazon_dns extends service_module
 	 * @return string
 	 * @author Samer Bechara <sam@thoughtengineer.com>
 	 */
-	function title()
+	public static function title()
 	{
 		return 'Amazon Route 53';
 	}
