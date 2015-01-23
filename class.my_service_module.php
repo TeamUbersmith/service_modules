@@ -32,34 +32,6 @@ class my_service_module extends service_module
 	}
 
 	/**
-	 * The 'get_metadata_config()' will automatically create custom data
-	 * fields if they do not exist when the service module is installed.
-	 * 'type' can be 'text' or 'select'. If using 'select', pass an 'options'
-	 * key with an array of your values to be presented in the select box.
-	 * See below for a (commented out) example.
-	 *
-	 * @return array
-	 */
-	public function get_metadata_config()
-	{
-		return array(
-			'meta_type'  => 'client',
-			'items'      => array(
-				'my_special_field' => array(
-					'prefix'      => uber_i18n('My Special Field'),
-					'type'        => 'text',
-					'size'        => 6,
-					'default_val' => '',
-					// 'options'     => array(
-					// 	'special' => 'Special',
-					// 	'notso'   => 'Not So Special',
-					// ),
-				)
-			),
-		);
-	}
-
-	/**
 	 * The 'summary' function allows you to display some useful information
 	 * related to your service module on a per client service basis. This
 	 * will be displayed in the lower right hand corner of the service's
@@ -69,25 +41,19 @@ class my_service_module extends service_module
 	 */
 	public function summary()
 	{
-		echo '<div>Hello, and welcome to my service module.</div>';
-
 		$sky = $this->config('my_option');
-
 		if (empty($sky)) {
-			$sky = 'dunno!';
+			$sky = uber_i18n('dunno!');
 		}
 
-		echo '
-		<div>
-			<span>Is the sky blue?: ' . h($sky) . '</span>
-		</div>';
+		echo '<div><span>';
+		echo h(uber_i18nf('Is the sky blue?: %s',$sky));
+		echo '</span></div>';
 
 		$service = $this->service;
 
 		echo '<pre>';
-
-		var_dump($service);
-
+		ph(var_dump($service,true));
 		echo '</pre>';
 
 		return true;
@@ -118,6 +84,34 @@ class my_service_module extends service_module
 					'no' => uber_i18n('No'),
 				),
 				'default' => 'false',
+			),
+		);
+	}
+
+	/**
+	 * The 'get_metadata_config()' will automatically create custom data
+	 * fields if they do not exist when the service module is installed.
+	 * 'type' can be 'text' or 'select'. If using 'select', pass an 'options'
+	 * key with an array of your values to be presented in the select box.
+	 * See below for a (commented out) example.
+	 *
+	 * @return array
+	 */
+	public function get_metadata_config()
+	{
+		return array(
+			'meta_type'  => 'client',
+			'items'      => array(
+				'my_special_field' => array(
+					'prefix'      => uber_i18n('My Special Field'),
+					'type'        => 'text',
+					'size'        => 6,
+					'default_val' => '',
+					// 'options'     => array(
+					// 	'special' => uber_i18n('Special'),
+					// 	'notso'   => uber_i18n('Not So Special'),
+					// ),
+				)
 			),
 		);
 	}
