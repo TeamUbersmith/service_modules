@@ -6,8 +6,7 @@
  * You will want to change my_service_module to something a little more
  * descriptive.
  *
- * When complete, place your finished device module into
- * include/service_modules/
+ * When complete, place your finished module into include/service_modules/
  *
  * @package ubersmith_customizations
  */
