@@ -44,7 +44,7 @@
  * @package ubersmith
  * @author Samer Bechara <sam@thoughtengineer.com>
  */
-class amazon_dns extends service_module
+class sm_amazon_dns extends service_module
 {
 	// AWS Route 53 object
 	protected $aws;

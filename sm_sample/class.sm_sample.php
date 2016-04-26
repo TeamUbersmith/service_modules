@@ -3,7 +3,7 @@
 /**
  * My Service Module
  *
- * You will want to change my_service_module to something a little more
+ * You will want to change sm_sample to something a little more
  * descriptive.
  *
  * When complete, place your finished module into include/service_modules/
@@ -16,7 +16,7 @@
  *
  * @package ubersmith_customizations
  */
-class my_service_module extends service_module
+class sm_sample extends service_module
 {
 	/**
 	 * The name of the service module. This title will be shown in the
