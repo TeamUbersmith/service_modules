@@ -22,7 +22,36 @@ class sm_sample extends service_module
 		return uber_i18n('Usage-Based Power Billing');
 	}
 	
-	function get_metadata_config()
+	/**
+	 * This method returns an array of configuration options that will be
+	 * displayed when the module is configured for a service plan. You can
+	 * add as many configuration items as you like. Retrieval of the
+	 * configuration data is shown in the summary() function above.
+	 *
+	 * @return array
+	 */
+	public function config_items()
+	{
+		return array(
+			'precision' => array(
+				'label'   => uber_i18n('Overage Precision') .':',
+				'type'    => 'select',
+				'options' => array(0=>'0',1=>'1',2=>'2'),
+				'default' => '0',
+			),
+		);
+	}
+	
+	/**
+	 * The 'get_metadata_config()' method will automatically create custom data
+	 * fields if they do not exist when the service module is installed.
+	 * 'type' can be 'text' or 'select'. If using 'select', pass an 'options'
+	 * key with an array of your values to be presented in the select box.
+	 * See below for a (commented out) example.
+	 *
+	 * @return array
+	 */
+	public function get_metadata_config()
 	{
 		return array(
 			array(
@@ -46,111 +75,45 @@ class sm_sample extends service_module
 						'size'        => 30,
 						'default_val' => '',
 					),
+/*
+					'select_example' => array(
+						'prefix'      => 'Select Example',
+						'type'        => 'select',
+						'size'        => 30,
+						'default_val' => '',
+						'options'     => array(
+						'special' => uber_i18n('Special'),
+						'notso'   => uber_i18n('Not So Special'),
+					),
+*/
 				),
 			),
 		);
 	}
 	
-	public function onbeforerenew($request)
+	/**
+	 * The install function directs the service module to perform tasks upon
+	 * creation.
+	 *
+	 * This might include creating metadata items, reaching out to a remote
+	 * service, or any number of tasks that you would like to perform upon
+	 * initial setup.
+	 *
+	 * @return bool|PEAR_Error
+	 */
+	public function install()
 	{
-		if (empty($request['now'])) {
-			$request['now'] = time();
-		}
-		
-		// Grab service metadata
-		$metadata = $this->metadata();
-		if (PEAR::isError($metadata)) {
-			return $metadata;
-		}
-		
-		// Is circuit ID properly set?
-		if (empty($metadata['usage_power_circuit_id'])) {
-			return true;
-		}
-		
-		$service = $this->service;
-		
-		// check we're set to post renew
-		if (empty($service['post_renew'])) {
-			return PEAR::raiseError(uber_i18n('Usage-Based Power Billing services must be set to post renew.'),1);
-		}
-		
-		// use the current renewal period
-		$start_time = $service['renewdate'];
-		$end_time   = $request['newdate'];
-		
-		// don't bill past the end date of the service
-		if (!empty($service['end']) && $service['end'] < $end_time) {
-			$end_time = $service['end'];
-		}
-		
-		// make sure we don't start earlier than the start date of the service
-		$start_time = max($start_time,$service['start']);
-		
-		// if we've already billed for the period
-		if ($end_time <= $start_time) {
-			return true;
-		}
-		
-		$request['end']   = $end_time;
-		$request['start'] = $start_time;
-		
-		$report = $this->_report($request,$metadata);
-		if (PEAR::isError($report)) {
-			return $report;
-		}
-		
-		if (!empty($this->service['discount'])) {
-			if ($this->service['discount_type']) {
-				$report['amount_due'] -= $this->service['discount'];
-			} else {
-				$report['amount_due'] *= (1 - ($this->service['discount'] / 100));
-			}
-		}
-		
-		// Bill (update service)
-		$update = array(
-			'price'    => $report['overage_rate'],
-			'quantity' => $report['overage'],
-			'cost'     => $report['amount_due'],
-		);
-		$result =  $this->update_service($update);
-		if (PEAR::isError($result)) {
-			return $result;
-		}
-		
-		// Save details in service notes
-		$notes = array();
-		if (!empty($report['included'])) {
-			$notes[1]  = "\n".''.uber_i18n('Included') .': '. $report['included'] .' '. $report['unit'];
-			$notes[1] .= "\n".''.uber_i18n('Overage') .': '. $report['overage'] .' '. $report['unit'];
-		} else {
-			$notes[1] = "\n".''.uber_i18n('Usage') .': '. $report['overage'] .' '. $report['unit'];
-		}
-		$result = set_service_notes(array(
-			'packid' => $service['packid'],
-			'notes'  => $notes,
-		));
-		if (PEAR::isError($result)) {
-			return $result;
-		}
-		
 		return true;
 	}
 	
-	public function onbeforecancel($request = array())
-	{
-		// make sure we bill for the last period
-		$request['now']     = $this->service['end'];
-		$request['end']     = $this->service['end'];
-		$request['olddate'] = $this->service['end'];
-		$request['newdate'] = $this->service['end'];
-		
-		$this->onbeforerenew($request);
-		
-		return true;
-	}
-	
+	/**
+	 * The 'summary' function allows you to display some useful information
+	 * related to your service module on a per client service basis. This
+	 * will be displayed in the lower portion of the service's
+	 * page when viewed in the Client Manager.
+	 *
+	 * @return bool
+	 */
 	public function summary($request = array())
 	{
 		$report = $this->_summary($request);
@@ -587,18 +550,6 @@ class sm_sample extends service_module
 		);
 	}
 	
-	function config_items()
-	{
-		return array(
-			'precision' => array(
-				'label'   => uber_i18n('Overage Precision') .':',
-				'type'    => 'select',
-				'options' => array(0=>'0',1=>'1',2=>'2'),
-				'default' => '0',
-			),
-		);
-	}
-	
 	function roundup($num,$digits = 0)
 	{
 		if (empty($digits)) {
@@ -610,6 +561,7 @@ class sm_sample extends service_module
 		return round(ceil($num * $fact) / $fact,$digits);
 	}
 	
+	// This method
 	function get_database()
 	{
 		/**
@@ -649,6 +601,272 @@ class sm_sample extends service_module
 		}
 		
 		return $db;
+	}
+	
+	/**
+	 * This method is called immediately before the related service is first
+	 * created.
+	 *
+	 * @return bool|PEAR_Error
+	 */
+	public function onstart()
+	{
+		return true;
+	}
+	
+	/**
+	 * This method is called immediately before the related service is
+	 * edited/updated.
+	 *
+	 * @return bool|PEAR_Error
+	 */
+	public function onafteredit()
+	{
+		return true;
+	}
+	
+	/**
+	 * This method is called immediately before the related service is
+	 * changed to the 'Suspended' state.
+	 *
+	 * @return bool|PEAR_Error
+	 */
+	public function onbeforesuspend()
+	{
+		return true;
+	}
+	
+	/**
+	 * This method is called immediately after the related service is
+	 * changed to the 'Suspended' state.
+	 *
+	 * @return bool|PEAR_Error
+	 */
+	public function onaftersuspend()
+	{
+		return true;
+	}
+	
+	/**
+	 * This method is called immediately before the related service is
+	 * changed from the 'Suspended' state to any other state.
+	 *
+	 * @return bool|PEAR_Error
+	 */
+	public function onbeforeunsuspend()
+	{
+		return true;
+	}
+	
+	/**
+	 * This method is called immediately after the related service is
+	 * changed from the 'Suspended' state to any other state.
+	 *
+	 * @return bool|PEAR_Error
+	 */
+	public function onafterunsuspend()
+	{
+		return true;
+	}
+	
+	/**
+	 * This method is called immediately before the related service is
+	 * changed to the 'Canceled' state.
+	 *
+	 * @return bool|PEAR_Error
+	 */
+	public function onbeforecancel($request = array())
+	{
+		// make sure we bill for the last period
+		$request['now']     = $this->service['end'];
+		$request['end']     = $this->service['end'];
+		$request['olddate'] = $this->service['end'];
+		$request['newdate'] = $this->service['end'];
+		
+		$this->onbeforerenew($request);
+		
+		return true;
+	}
+	
+	/**
+	 * This method is called immediately after the related service is
+	 * changed to the 'Canceled' state.
+	 *
+	 * @return bool|PEAR_Error
+	 */
+	public function onaftercancel()
+	{
+		return true;
+	}
+	
+	/**
+	 * This method is called immediately before the related service is
+	 * changed from the 'Canceled' state to any other state.
+	 *
+	 * @return bool|PEAR_Error
+	 */
+	public function onbeforeuncancel()
+	{
+		return true;
+	}
+	
+	/**
+	 * This method is called immediately after the related service is
+	 * changed from the 'Canceled' state to any other state.
+	 *
+	 * @return bool|PEAR_Error
+	 */
+	public function onafteruncancel()
+	{
+		return true;
+	}
+	
+	/**
+	 * This method is called immediately before the related service is
+	 * renewed.
+	 *
+	 * @return bool|PEAR_Error
+	 */
+	public function onbeforerenew($request)
+	{
+		if (empty($request['now'])) {
+			$request['now'] = time();
+		}
+		
+		// Grab service metadata
+		$metadata = $this->metadata();
+		if (PEAR::isError($metadata)) {
+			return $metadata;
+		}
+		
+		// Is circuit ID properly set?
+		if (empty($metadata['usage_power_circuit_id'])) {
+			return true;
+		}
+		
+		$service = $this->service;
+		
+		// check we're set to post renew
+		if (empty($service['post_renew'])) {
+			return PEAR::raiseError(uber_i18n('Usage-Based Power Billing services must be set to post renew.'),1);
+		}
+		
+		// use the current renewal period
+		$start_time = $service['renewdate'];
+		$end_time   = $request['newdate'];
+		
+		// don't bill past the end date of the service
+		if (!empty($service['end']) && $service['end'] < $end_time) {
+			$end_time = $service['end'];
+		}
+		
+		// make sure we don't start earlier than the start date of the service
+		$start_time = max($start_time,$service['start']);
+		
+		// if we've already billed for the period
+		if ($end_time <= $start_time) {
+			return true;
+		}
+		
+		$request['end']   = $end_time;
+		$request['start'] = $start_time;
+		
+		$report = $this->_report($request,$metadata);
+		if (PEAR::isError($report)) {
+			return $report;
+		}
+		
+		if (!empty($this->service['discount'])) {
+			if ($this->service['discount_type']) {
+				$report['amount_due'] -= $this->service['discount'];
+			} else {
+				$report['amount_due'] *= (1 - ($this->service['discount'] / 100));
+			}
+		}
+		
+		// Bill (update service)
+		$update = array(
+			'price'    => $report['overage_rate'],
+			'quantity' => $report['overage'],
+			'cost'     => $report['amount_due'],
+		);
+		$result =  $this->update_service($update);
+		if (PEAR::isError($result)) {
+			return $result;
+		}
+		
+		// Save details in service notes
+		$notes = array();
+		if (!empty($report['included'])) {
+			$notes[1]  = "\n".''.uber_i18n('Included') .': '. $report['included'] .' '. $report['unit'];
+			$notes[1] .= "\n".''.uber_i18n('Overage') .': '. $report['overage'] .' '. $report['unit'];
+		} else {
+			$notes[1] = "\n".''.uber_i18n('Usage') .': '. $report['overage'] .' '. $report['unit'];
+		}
+		$result = set_service_notes(array(
+			'packid' => $service['packid'],
+			'notes'  => $notes,
+		));
+		if (PEAR::isError($result)) {
+			return $result;
+		}
+		
+		return true;
+	}
+	
+	/**
+	 * This method is called immediately after the related service is
+	 * renewed.
+	 *
+	 * @return bool|PEAR_Error
+	 */
+	public function onafterrenew()
+	{
+		return true;
+	}
+	
+	/**
+	 * This method is called immediately after payment is received for the
+	 * related service.
+	 *
+	 * @return bool|PEAR_Error
+	 */
+	public function onafterpayment()
+	{
+		return true;
+	}
+	
+	/**
+	 * This method is called immediately before the related service is
+	 * created.
+	 *
+	 * @return bool
+	 */
+	public function onbeforecreate()
+	{
+		return true;
+	}
+	
+	/**
+	 * This method is called immediately after the related service is
+	 * created.
+	 *
+	 * @return bool
+	 */
+	public function onaftercreate()
+	{
+		return true;
+	}
+	
+	/**
+	 * This method is called immediately after an invoice is generated for
+	 * the related service
+	 *
+	 * @return bool
+	 */
+	public function onafterinvoice()
+	{
+		return true;
 	}
 }
 
