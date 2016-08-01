@@ -103,7 +103,7 @@ class sm_sample extends service_module
 	 */
 	public function install()
 	{
-		return true;
+		return parent::install();
 	}
 	
 	/**
