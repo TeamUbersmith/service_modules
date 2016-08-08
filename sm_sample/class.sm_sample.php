@@ -100,16 +100,12 @@ class sm_sample extends service_module
 	 * initial setup.
 	 *
 	 * @return bool|PEAR_Error
-	 *
 	 */
-	 
-	/** Deprecated by internal install function
 	public function install()
 	{
 		return parent::install();
 	}
-	*/
-
+	
 	/**
 	 * The 'summary' function allows you to display some useful information
 	 * related to your service module on a per client service basis. This
