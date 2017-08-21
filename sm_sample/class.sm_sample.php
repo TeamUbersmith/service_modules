@@ -460,7 +460,10 @@ class sm_sample extends service_module
 			// kwh: 623.9700
 			// circuit_id: RPP-6-3C_11
 			// bill_month: 2013-10-01
-			$query = 'SELECT `kwh` FROM `usage` WHERE `circuit_id`=? AND `bill_month`>=? AND `bill_month`<=?';
+			// Here, we are using months only - but this could easily be more specific timestamps,
+			// since the $request variables have that resolution.
+			// Please be careful about boundaries with inequalities!
+			$query = 'SELECT `kwh` FROM `usage` WHERE `circuit_id`=? AND `bill_month`>=? AND `bill_month`<?';
 			$args = array(
 				$metadata['usage_power_circuit_id'],
 				date('Y-m-d',$request['start']),
