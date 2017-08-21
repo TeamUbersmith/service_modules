@@ -460,6 +460,12 @@ class sm_sample extends service_module
 			// kwh: 623.9700
 			// circuit_id: RPP-6-3C_11
 			// bill_month: 2013-10-01
+			
+			// It uses Ubersmith's internal database driver and can only interact 
+			// with local tables in the database. This is just a POC and is not 
+			// the recommended architecture for a service module. Using an external API 
+			// or accessible database on another server is a better approach.
+			
 			// Here, we are using months only - but this could easily be more specific timestamps,
 			// since the $request variables have that resolution.
 			// Please be careful about boundaries with inequalities!
@@ -564,7 +570,10 @@ class sm_sample extends service_module
 		return round(ceil($num * $fact) / $fact,$digits);
 	}
 	
-	// This method
+	// This method gets database config details from Ubersmith's config. 
+	// This is not the recommended architecture for storing data; it would be 
+	// more beneficial to have an API or database on a different server, 
+	// accessible from the server on which Ubersmith is installed.
 	function get_database()
 	{
 		/**
