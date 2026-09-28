@@ -880,6 +880,53 @@ class sm_sample extends service_module
 	{
 		return true;
 	}
+
+	/**
+	 * This method is called once per night for every active service using
+	 * this module, via Ubersmith's nightly cron. It's the place to run
+	 * periodic, time-based logic that doesn't map to one of the
+	 * onbefore-/onafter- lifecycle events above - for example checking
+	 * usage against a threshold, expiring a temporary grant, or sending a
+	 * scheduled notification.
+	 *
+	 * $request['now'] is provided by the cron runner as the timestamp to
+	 * treat as "now" for this pass, so tests/backfills can simulate other
+	 * dates - always prefer it over calling time() directly.
+	 *
+	 * @return bool|PEAR_Error
+	 */
+	public function nightlycron($request = array())
+	{
+		if (empty($request['now'])) {
+			$request['now'] = time();
+		}
+
+		return true;
+	}
+
+	/**
+	 * This method is called when the related service is provisioned -
+	 * typically right after creation, or whenever an admin/client
+	 * explicitly re-runs provisioning from the service's page. Use it to
+	 * do the actual work of setting up the account/resource this module
+	 * manages on a remote system (e.g. creating a hosting account,
+	 * issuing credentials), as opposed to onaftercreate() which only
+	 * fires once, at creation time.
+	 *
+	 * $request may carry override values (e.g. username/domain/password)
+	 * supplied by whatever triggered provisioning; fall back to values on
+	 * $this->service when they're not present, as shown below.
+	 *
+	 * @return bool|PEAR_Error
+	 */
+	public function onprovision($request = array())
+	{
+		if (empty($request['username'])) {
+			$request['username'] = $this->service['username'];
+		}
+
+		return true;
+	}
 }
 
 // end of script

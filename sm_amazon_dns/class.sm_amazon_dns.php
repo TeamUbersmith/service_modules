@@ -110,37 +110,37 @@ function get_metadata_config()
 	}
 	
 	// Displays the DNS records manager for a specific service plan
-	function view(){
-	
+	function view($request = array()){
+
                 echo '<a href="'; echo $this->view_url(); echo '">View Records</a> - <a href="'.$this->view_url(array('r53_action' => 'add_form')).'#">Add Record</a><br/><br/>';
 		$records = $this->getRecords();
-                
-                if( $_GET['r53_action'] == 'delete'){
-                    
-                    $record['record_name'] = $_GET['record_name'];
-                    $record['record_type'] = $_GET['record_type'];
-                    $record['record_ttl'] = $_GET['record_ttl'];
-                    $record['record_value'] = $_GET['record_value'];
-                    
+
+                if( $request['r53_action'] == 'delete'){
+
+                    $record['record_name'] = $request['record_name'];
+                    $record['record_type'] = $request['record_type'];
+                    $record['record_ttl'] = $request['record_ttl'];
+                    $record['record_value'] = $request['record_value'];
+
                     $this->deleteRecord($record);
-                    
+
                     echo "Record is being deleted, please allow a few seconds for your request to be completed.";
-                    
+
                     return;
-                } 
-                
+                }
+
                 // Show add record form
-                elseif ($_GET['r53_action']=='add_form'){
+                elseif ($request['r53_action']=='add_form'){
                     echo $this->addForm();
                     return;
                 }
-                elseif ($_GET['r53_action'] == 'add_record') {
-                    
-                    
-                    $record['name'] = $_POST['record_name'];
-                    $record['record_type'] = $_POST['record_type'];
-                    $record['ttl'] = $_POST['record_ttl'];
-                    $record['value'] = $_POST['record_value'];
+                elseif ($request['r53_action'] == 'add_record') {
+
+
+                    $record['name'] = $request['record_name'];
+                    $record['record_type'] = $request['record_type'];
+                    $record['ttl'] = $request['record_ttl'];
+                    $record['value'] = $request['record_value'];
                     
                     $result = $this->addRecord($record);
                     

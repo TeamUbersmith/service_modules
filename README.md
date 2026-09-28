@@ -88,6 +88,10 @@ Ubersmith's Service Module autoloader expects module definitions to be in the re
 
 Our official service module example lives in the `sm_sample` directory. Please consult this if you're implementing your own service module for Ubersmith.
 
+## Popup UI
+
+Some parts of Ubersmith's own module UI (including the `Popup` class used by `sm_sample`'s `view()` method) are in the process of being migrated from popup windows to inline modals. Popup-based patterns in these examples will continue to work, but new modules should check the current core documentation/examples before building extensive popup UI, as this mechanism may be superseded.
+
 ## Community Contribution
 
 Service modules contributed by the community live in their own subdirectories. If you wish to contribute one, please develop your service module within its own subdirectory, then submit a pull request. Please note that we take no responsibility for service modules contributed by the community, and make no claims as to their functionality or usability. SHOULD THE LIBRARY PROVE DEFECTIVE, YOU ASSUME THE COST OF ALL NECESSARY SERVICING, REPAIR OR CORRECTION.
